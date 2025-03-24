@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Парсинг XML</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Парсинг XML с использованием JavaScript</h1>
+    <div id="xmlContent">
+        <h3>Содержимое XML:</h3>
+        <img src="image.png" style="width: 600px; height: 450px; border: 2px solid #8B5E3C80; border-radius: 15px;">
+    </div>
+    <h4>Введите номер элемента второго уровня для вывода его технологий:</h4>
+    <input id="secondLevelIndex" placeholder="Введите номер элемента второго уровня">
+    <button onclick="loadXML()">Загрузить данные</button>
+    <div id="output"></div>
+
+    <script>
+        function loadXML() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'lab_1.xml', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    parseXML(xhr.responseXML);
+                }
+            };
+            xhr.send();
+        }
+
+        function parseXML(xml) {
+            var secondLevelIndex = parseInt(document.getElementById('secondLevelIndex').value); 
+            if (!secondLevelIndex) {
+                alert('Пожалуйста, введите номер элемента второго уровня!');
+                return;
+            }
+
+            var secondLevelElements = xml.getElementsByTagName('website'); 
+            if (secondLevelIndex < 1 || secondLevelIndex > secondLevelElements.length) {
+                alert('Неверный номер элемента второго уровня!');
+                return;
+            }
+
+            var secondLevel = secondLevelElements[secondLevelIndex - 1];
+            var thirdLevelElements = secondLevel.getElementsByTagName('language');
+
+            var outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '<h3>Технологии для сайта "' + secondLevel.getElementsByTagName('name')[0].textContent + '"</h3><div>';
+            
+            for (var i = 0; i <thirdLevelElements.length; i++) {
+                outputDiv.innerHTML += '<div>' + thirdLevelElements[i].textContent + '          ' + '</div>';
+            }
+            outputDiv.innerHTML += '</div>';
+        }
+    </script>
+</body>
+</html>

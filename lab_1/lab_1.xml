@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="style.css"?>
+<web_design>
+    <website>
+        <name>Creative Portfolio</name>
+        <developer>
+            <developer_name>John Doe</developer_name>
+            <skills>UI/UX, Frontend</skills>
+        </developer>
+        <technologies>
+            <language>HTML</language>
+            <language>CSS</language>
+            <language>JavaScript</language>
+        </technologies>
+    </website>
+    <website>
+        <name>Business Landing Page</name>
+        <developer>
+            <developer_name>Jane Smith</developer_name>
+            <skills>UX Design, Backend</skills>
+        </developer>
+        <technologies>
+            <language>HTML</language>
+            <language>CSS</language>
+            <language>PHP</language>
+            <framework>Laravel</framework>
+        </technologies>
+    </website>
+    <website>
+        <name>eCommerce Platform</name>
+        <developer>
+            <developer_name>Michael Johnson</developer_name>
+            <skills>Full Stack</skills>
+        </developer>
+        <technologies>
+            <language>HTML</language>
+            <language>CSS</language>
+            <language>JavaScript</language>
+            <framework>Vue.js</framework>
+        </technologies>
+    </website>
+</web_design>

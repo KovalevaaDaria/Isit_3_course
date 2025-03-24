@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VK API Lab • Полная версия</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #e0e0e0;
+            --border-color: #404040;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .page-header {
+            color: #e0e0e0;
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 2em;
+            font-weight: 500;
+            letter-spacing: normal;
+            padding-bottom: 1rem;
+            font-family: inherit;
+        }
+
+        .task-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-dark {
+            background: #333 !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-color) !important;
+            text-align: left !important;
+        }
+
+        .result-box {
+            background: #252525;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .user-item {
+            margin: 8px 0;
+            padding: 10px;
+            background: #333;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .id-badge {
+            background: #404040;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        .btn {
+            padding: 0.3rem 0.75rem;
+            font-size: 0.9em;
+            margin-top: 0.5rem;
+            max-width: 250px;
+        }
+
+        #authButton {
+            padding: 0.3rem 0.75rem;
+            font-size: 1em;
+        }
+
+        .participant-block {
+            margin-bottom: 1rem;
+            background: #2d2d2d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .participant-header {
+            padding: 1rem;
+            background: #404040;
+            cursor: pointer;
+            list-style: none;
+        }
+
+        .participant-content {
+            padding: 1rem;
+        }
+
+        details[open] .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .result-box {
+            background: #252525;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none; /* Скрываем блоки результатов изначально */
+        }
+
+        .task-card.auth-section {
+            margin-bottom: 2.5rem !important; /* Увеличиваем отступ снизу */
+        }
+
+        .task-header {
+            cursor: pointer;
+            padding: 1rem;
+            background: #353535;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s ease;
+        }
+
+        .task-header:hover {
+            background: #404040;
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s ease;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .collapsed .collapse-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Оригинальные стили остаются без изменений */
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #e0e0e0;
+            --border-color: #404040;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .page-header {
+            color: #e0e0e0;
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 2em;
+            font-weight: 500;
+            letter-spacing: normal;
+            padding-bottom: 1rem;
+            font-family: inherit;
+        }
+
+        /* Добавить в существующие стили */
+        .id-badge.small {
+            padding: 2px 6px;
+            font-size: 0.8em;
+            background: #404040;
+        }
+
+        .participant-header.bg-success {
+            background: #2d7a4d !important;
+        }
+
+        .highlight {
+            background: rgba(45, 122, 77, 0.1);
+            border-left: 3px solid #2d7a4d;
+        }
+
+        .highlight .participant-header {
+            background: #2d7a4d !important;
+        }
+
+        .user-item .link-success {
+            color: #8f9bb3;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .user-item .link-success:hover {
+            color: #5d6c89;
+        }
+
+        .text-muted.small {
+            font-size: 0.85em;
+            color: #888 !important;
+        }
+
+        .highlight .participant-header {
+            background: #2d7a4d !important;
+            color: white;
+        }
+
+        .highlight {
+            border-left: 3px solid #2d7a4d;
+            background: rgba(45, 122, 77, 0.1);
+        }
+
+        .bg-success {
+            background: #2d7a4d !important;
+        }
+
+        .input-dark.is-invalid {
+            border-color: #dc3545 !important;
+            background: #3d1a1d !important;
+        }
+
+        .input-dark.is-invalid::placeholder {
+            color: #dc3545 !important;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8em;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-header">VK API Lab</h1>
+        <!-- Секция авторизации -->
+        <div class="task-card card auth-section">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Управление авторизацией</h5>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Client ID приложения</label>
+                        <input type="text" class="form-control input-dark" 
+                               id="clientId" placeholder="Введите ваш Client ID">
+                    </div>
+                    
+                    <div class="col-12">
+                        <button class="btn btn-primary w-100" 
+                                id="authButton">Авторизоваться через VK</button>
+                    </div>
+                    
+                    <div class="col-12">
+                        <label class="form-label">Токен доступа</label>
+                        <input type="text" class="form-control input-dark" 
+                               id="manualToken" placeholder="Введите токен вручную">
+                    </div>
+                    
+                    <div class="col-12">
+                        <button class="btn btn-outline-primary w-100" 
+                                id="saveTokenBtn">Сохранить токен</button>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="result-box mt-2">
+                            Текущий токен: <span id="tokenDisplay">не установлен</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Задание 1 -->
+        <div class="task-card card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Друзья участников группы</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label">Количество участников</label>
+                    <input type="input" class="form-control input-dark" 
+                           id="task1-limit" placeholder="Введите количество участников, по которым хотите получить список их друзей">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">ID группы</label>
+                    <input type="text" class="form-control input-dark" 
+                           id="task1-group" placeholder="Введите id группы или сообщества">
+                </div>
+                
+                <button class="btn btn-primary w-100" onclick="task1()">Собрать данные</button>
+                <div id="task1-result" class="result-box mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Задание 2 -->
+        <div class="task-card card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Лайки последним онлайн</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label">Количество друзей</label>
+                    <input type="text" class="form-control input-dark" 
+                           id="task2-limit" placeholder="Введите количество друзей, которым хотите">
+                </div>
+                
+                <button class="btn btn-primary w-100" onclick="task2()">Поставить лайки</button>
+                <div id="task2-result" class="result-box mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Задание 3 -->
+        <div class="task-card card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Пост о группах</h5>
+                <button class="btn btn-primary w-100" onclick="task3()">Создать пост</button>
+                <div id="task3-result" class="result-box mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Задание 4 -->
+        <div class="task-card card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Максимальное количество друзей</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label">Количество друзей</label>
+                    <input type="input" class="form-control input-dark" 
+                           id="task4-limit" placeholder="Введите максимальное количество друзей с которого хотите начать поиск">
+                </div>
+                
+                <button class="btn btn-primary w-100" onclick="task4()">Найти</button>
+                <div id="task4-result" class="result-box mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Задание 5 -->
+        <div class="task-card card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Авторы новостей</h5>
+                <button class="btn btn-primary w-100" onclick="task5()">Показать</button>
+                <div id="task5-result" class="result-box mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        let accessToken = null;
+
+        // Авторизацияя
+        document.getElementById('authButton').addEventListener('click', function() {
+            const clientId = document.getElementById('clientId').value.trim();
+            const redirectUri = 'https://oauth.vk.com/blank.html';
+            
+            if(!clientId) {
+                showNotification('Введите Client ID приложения!', 'danger');
+                return;
+            }
+
+            const authUrl = 
+                `https://oauth.vk.com/authorize?` +
+                `client_id=${clientId}&` +
+                `display=page&` +
+                `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+                `response_type=token&` +
+                `scope=friends,groups,wall,offline&` +
+                `v=5.131`;
+
+            const authWindow = window.open(authUrl, 'vk_auth', 'width=600,height=700');
+
+            const checkAuth = setInterval(() => {
+                try {
+                    if(authWindow.closed) {
+                        clearInterval(checkAuth);
+                        return;
+                    }
+
+                    const hash = new URL(authWindow.location.href).hash.slice(1);
+                    const params = new URLSearchParams(hash);
+
+                    if(params.has('access_token')) {
+                        clearInterval(checkAuth);
+                        accessToken = params.get('access_token');
+                        authWindow.close();
+                        
+                        localStorage.setItem('vkLabToken', accessToken);
+                        updateTokenDisplay();
+                        showNotification('Авторизация успешна!', 'success');
+                    }
+                } catch(e) {}
+            }, 100);
+        });
+
+        // Управления
+        document.getElementById('saveTokenBtn').addEventListener('click', () => {
+            const token = document.getElementById('manualToken').value.trim();
+            if(token) {
+                accessToken = token;
+                localStorage.setItem('vkLabToken', token);
+                updateTokenDisplay();
+                showNotification('Токен сохранён!', 'success');
+            }
+        });
+
+        function updateTokenDisplay() {
+            const display = document.getElementById('tokenDisplay');
+            if(accessToken) {
+                display.textContent = `Токен: ${accessToken.slice(0, 15)}...`;
+                document.getElementById('manualToken').value = accessToken;
+            } else {
+                display.textContent = 'Не установлен';
+            }
+        }
+
+        // Иницилизация
+        window.addEventListener('load', () => {
+            const savedToken = localStorage.getItem('vkLabToken');
+            const hashParams = new URLSearchParams(window.location.hash.slice(1));
+            
+            if(hashParams.has('access_token')) {
+                accessToken = hashParams.get('access_token');
+                localStorage.setItem('vkLabToken', accessToken);
+                window.history.replaceState({}, '', window.location.pathname);
+            } else if(savedToken) {
+                accessToken = savedToken;
+            }
+            
+            updateTokenDisplay();
+        });
+
+        // Уведомления
+        function showNotification(text, type = 'info') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} notification`;
+            alert.innerHTML = text; // Используем innerHTML вместо textContent
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        }
+
+        // API функции
+        async function vkRequest(method, params = {}) {
+            return new Promise((resolve, reject) => {
+                if(!accessToken) {
+                    showNotification('Сначала авторизуйтесь!', 'danger');
+                    return reject('No access token');
+                }
+
+                const callbackName = `jsonp_${Math.random().toString(36).substr(2, 9)}`;
+                const url = new URL(`https://api.vk.com/method/${method}`);
+                
+                url.searchParams.set('access_token', accessToken);
+                url.searchParams.set('v', '5.131');
+                for(const [key, value] of Object.entries(params)) {
+                    url.searchParams.set(key, value);
+                }
+
+                window[callbackName] = function(response) {
+                    delete window[callbackName];
+                    if(response.error) {
+                        handleVkError(response.error);
+                        return reject(response.error);
+                    }
+                    resolve(response.response);
+                };
+
+                const script = document.createElement('script');
+                script.src = `${url}&callback=${callbackName}`;
+                script.onerror = reject;
+                document.body.appendChild(script);
+            });
+        }
+
+        function handleVkError(error) {
+            const errors = {
+                5: 'Ошибка авторизации',
+                6: 'Слишком много запросов',
+                100: 'Неверный параметр',
+                113: 'Неверный ID',
+                214: 'Нет прав доступа'
+            };
+            
+            const message = errors[error.error_code] || error.error_msg;
+            showNotification(`Ошибка: ${message}`, 'danger');
+        }
+
+
+        // Валидация
+        function validateFields(rules) {
+            let errors = [];
+            
+            rules.forEach(rule => {
+                const input = document.querySelector(rule.selector);
+                const value = input.value.trim();
+                input.classList.remove('is-invalid');
+
+                if (rule.required && !value) {
+                    input.classList.add('is-invalid');
+                    errors.push(rule.messages.required);
+                    return;
+                }
+                
+                if (rule.number && (isNaN(value) || Number(value) <= 0)) {
+                    input.classList.add('is-invalid');
+                    errors.push(rule.messages.number);
+                }
+            });
+            
+            return [...new Set(errors)]; // Убираем дубликаты
+        }
+
+        function validateNumberFields(fields) {
+            let errors = [];
+            fields.forEach(({selector, message}) => {
+                const input = document.querySelector(selector);
+                const value = input.value.trim();
+                if (isNaN(value) || Number(value) <= 0) {
+                    input.classList.add('is-invalid');
+                    errors.push(message);
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+            return errors;
+        }
+
+    
+        // Задание 1
+        async function task1() {
+            const resultBox = document.getElementById('task1-result');
+    
+            // Валидация
+            const errors = validateFields([
+                {
+                    selector: '#task1-group',
+                    required: true,
+                    messages: {
+                        required: 'Укажите ID группы'
+                    }
+                },
+                {
+                    selector: '#task1-limit',
+                    required: true,
+                    number: true,
+                    messages: {
+                        required: 'Укажите количество участников',
+                        number: 'Количество участников должно быть числом > 0'
+                    }
+                }
+            ]);
+
+            if (errors.length > 0) {
+                resultBox.style.display = 'none';
+                showNotification(errors.join('<br>'), 'danger');
+                return;
+            }
+
+            try {
+                const limit = document.getElementById('task1-limit').value || 100;
+                const groupId = document.getElementById('task1-group').value;
+                const resultBox = document.getElementById('task1-result');
+                
+                resultBox.innerHTML = '<div class="text-muted">Получаем участников группы...</div>';
+                resultBox.style.display = 'block';
+
+                // Получаем участников группы с проверкой на удаление
+                const members = await vkRequest('groups.getMembers', {
+                    group_id: groupId,
+                    count: limit,
+                    fields: 'first_name,last_name,deactivated,is_closed,can_access_closed'
+                });
+
+                resultBox.innerHTML = '<div class="text-muted">Собираем данные...</div>';
+                const allResults = [];
+
+                for (const [index, member] of members.items.entries()) {
+                    try {
+                        // Блок для сворачивания
+                        const userBlock = `
+                            <details class="participant-block" ${index < 3 ? 'open' : ''}>
+                                <summary class="participant-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="badge bg-secondary me-2">#${index + 1}</span>
+                                            ${member.first_name} ${member.last_name}
+                                            <small class="text-muted">(ID: ${member.id})</small>
+                                        </div>
+                                        <span class="toggle-icon">▼</span>
+                                    </div>
+                                </summary>
+                                <div class="participant-content">
+                        `;
+
+                        let content;
+                        
+                        // Проверка на удаленный аккаунт
+                        if (member.deactivated) {
+                            content = '<div class="text-warning">Пользователь не существует</div>';
+                        } 
+                        // Проверка закрытого профиля
+                        else if (member.is_closed && !member.can_access_closed) {
+                            content = '<div class="text-warning">Профиль закрыт</div>';
+                        } else {
+                            await new Promise(r => setTimeout(r, 350));
+                            const friends = await vkRequest('friends.get', {
+                                user_id: member.id,
+                                count: 20,
+                                fields: 'first_name,last_name'
+                            }).catch(() => ({ items: [] }));
+
+                            content = friends.items.length 
+                                ? friends.items.map(f => `
+                                    <div class="user-item">
+                                        <div class="id-badge">${f.id}</div>
+                                        ${f.first_name} ${f.last_name}
+                                    </div>
+                                `).join('')
+                                : '<div class="text-muted">Нет друзей</div>';
+                        }
+
+                        allResults.push(`${userBlock}${content}</div></details>`);
+
+                        // Частичное обновление
+                        if ((index + 1) % 5 === 0) {
+                            resultBox.innerHTML = `
+                                <div class="text-muted">Обработано: ${index + 1}/${members.items.length}</div>
+                                ${allResults.join('')}
+                            `;
+                        }
+                    } catch (error) {
+                        allResults.push(`
+                            <div class="participant-block">
+                                <div class="participant-header text-danger">
+                                    Ошибка обработки пользователя ID: ${member.id}
+                                </div>
+                            </div>
+                        `);
+                    }
+                }
+
+                resultBox.innerHTML = `
+                    <div class="text-success mb-3">Результаты (${members.items.length} участников):</div>
+                    ${allResults.join('')}
+                `;
+
+            } catch (error) {
+                resultBox.innerHTML = `
+                    <div class="text-danger">
+                        Ошибка: ${error.error_msg || error.message}
+                    </div>
+                `;
+            }
+        }
+
+
+        // Задание 2
+        async function task2() {
+            const resultBox = document.getElementById('task2-result');
+    
+            // Валидация
+            const errors = validateFields([
+                {
+                    selector: '#task2-limit',
+                    required: true,
+                    number: true,
+                    messages: {
+                        required: 'Укажите количество друзей',
+                        number: 'Количество должно быть числом > 0'
+                    }
+                }
+            ]);
+
+            if (errors.length > 0) {
+                resultBox.style.display = 'none';
+                showNotification(errors.join('<br>'), 'danger');
+                return;
+            }
+
+            try {
+                const limit = parseInt(document.getElementById('task2-limit').value) || 5; // Добавляем parseInt
+                const resultBox = document.getElementById('task2-result');
+                resultBox.style.display = 'block';
+                
+                resultBox.innerHTML = '<div class="text-muted">Получаем список друзей...</div>';
+                
+                // Получаем друзей с информацией о последнем посещении
+                const friends = await vkRequest('friends.get', {
+                    fields: 'last_seen,can_see_all_posts', // Добавляем проверку прав доступа
+                    count: 1000
+                });
+
+                // Фильтруем друзей с открытой стеной
+                const sortedFriends = friends.items
+                    .filter(f => f.last_seen && f.can_see_all_posts) // Добавляем фильтр
+                    .sort((a, b) => b.last_seen.time - a.last_seen.time)
+                    .slice(0, limit);
+
+                resultBox.innerHTML = '<div class="text-muted">Ставим лайки...</div>';
+                let successCount = 0;
+                const resultList = [];
+
+                // Перебираем друзей и ставим лайки
+                for (const friend of sortedFriends) {
+                    try {
+                        const posts = await vkRequest('wall.get', {
+                            owner_id: friend.id,
+                            count: 1,
+                            filter: 'owner' // Только посты владельца
+                        });
+                        
+                        if (posts.items.length > 0) {
+                            await vkRequest('likes.add', {
+                                type: 'post',
+                                owner_id: friend.id,
+                                item_id: posts.items[0].id
+                            });
+                            
+                            resultList.push(`
+                                <div class="user-item">
+                                    <div class="id-badge">ID: ${friend.id}</div>
+                                    <div class="user-info">
+                                        ${friend.first_name} ${friend.last_name}
+                                        <span class="text-success">✓ Лайк поставлен</span>
+                                    </div>
+                                </div>
+                            `);
+                            successCount++;
+                        } else {
+                            resultList.push(`
+                                <div class="user-item">
+                                    <div class="id-badge">ID: ${friend.id}</div>
+                                    <div class="user-info text-warning">
+                                        ${friend.first_name} ${friend.last_name}
+                                        <span class="text-warning">• Нет постов</span>
+                                    </div>
+                                </div>
+                            `);
+                        }
+                    } catch (error) {
+                        resultList.push(`
+                            <div class="user-item">
+                                <div class="id-badge">ID: ${friend.id}</div>
+                                <div class="user-info text-danger">
+                                    ${friend.first_name} ${friend.last_name}
+                                    <span class="text-danger">• Ошибка: ${error.error_msg || 'нет доступа'}</span>
+                                </div>
+                            </div>
+                        `);
+                    }
+                }
+
+                resultBox.innerHTML = `
+                    <div class="text-success mb-2">Запрошено: ${limit}</div>
+                    <div class="text-success mb-2">Успешно: ${successCount} лайков</div>
+                    <div class="user-list">${resultList.join('')}</div>
+                `;
+                
+            } catch (error) {
+                resultBox.innerHTML = `<div class="text-danger">Ошибка: ${error.message}</div>`;
+            }
+        }
+
+
+        // Задание 3
+        async function task3() {
+            try {
+                const resultBox = document.getElementById('task3-result');
+                resultBox.style.display = 'block'; // Добавлено отображение блока
+                resultBox.innerHTML = '<div class="text-muted">Получаем информацию о группах...</div>';
+                
+                // Получаем группы пользователя
+                const groups = await vkRequest('groups.get', {
+                    extended: 1,
+                    fields: 'name,members_count',
+                    count: 5
+                });
+
+                // Формируем текст поста
+                const postText = groups.items.map(group => 
+                    `🔹 ${group.name} (${group.members_count || 0} участников)`
+                ).join('\n');
+
+                // Создаем пост
+                const postResult = await vkRequest('wall.post', {
+                    message: `Мои группы:\n${postText}`
+                });
+
+                // Форматируем результат
+                const groupsHTML = groups.items.map(group => `
+                    <div class="user-item">
+                        <div class="id-badge">ID: -${group.id}</div>
+                        <div class="user-info">
+                            ${group.name}<br>
+                            <small>Участников: ${group.members_count || 0}</small>
+                        </div>
+                    </div>
+                `).join('');
+
+                resultBox.innerHTML = `
+                    <div class="text-success mb-2">Пост создан! ID: ${postResult.post_id}</div>
+                    <div class="user-list">${groupsHTML}</div>
+                `;
+
+            } catch (error) {
+                resultBox.innerHTML = `<div class="text-danger">Ошибка: ${error.message}</div>`;
+            }
+        }
+
+
+       // Задание 4
+        // Задание 4
+async function task4() {
+    const resultBox = document.getElementById('task4-result');
+    resultBox.innerHTML = '';
+    resultBox.style.display = 'block';
+    const startTime = Date.now();
+
+    try {
+        // Валидация
+        const errors = validateFields([{
+            selector: '#task4-limit',
+            required: true,
+            number: true,
+            messages: {
+                required: 'Укажите лимит поиска',
+                number: 'Должно быть числом > 0'
+            }
+        }]);
+
+        if (errors.length > 0) {
+            showNotification(errors[0], 'danger');
+            return;
+        }
+
+        const limit = Number(document.getElementById('task4-limit').value);
+        resultBox.innerHTML = '<div class="text-muted">Инициализация поиска...</div>';
+
+        // Получаем ID текущего пользователя
+        const [me] = await vkRequest('users.get', {});
+        const myId = me.id;
+
+        // Получаем список друзей с фильтрацией
+        const myFriends = await vkRequest('friends.get', {
+            count: limit,
+            fields: 'first_name,last_name,domain,is_closed,deactivated'
+        });
+
+        if (!myFriends.items?.length) {
+            resultBox.innerHTML = '<div class="text-warning">Нет друзей для анализа</div>';
+            return;
+        }
+
+        let candidates = [];
+        const friendSources = new Map();
+
+        // Асинхронная обработка каждого друга
+        for (const [index, friend] of myFriends.items.entries()) {
+            // Пропускаем закрытые и деактивированные профили
+            if (friend.deactivated || friend.is_closed) continue;
+
+            try {
+                // Задержка между запросами
+                await new Promise(resolve => setTimeout(resolve, 350));
+
+                // Получаем друзей друга
+                const friendsResponse = await vkRequest('friends.get', {
+                    user_id: friend.id,
+                    fields: 'counters,is_closed,deactivated',
+                    count: 1000
+                });
+
+                // Обработка результатов
+                friendsResponse.items.forEach(fof => {
+                    if (fof.id === myId || fof.is_closed || fof.deactivated) return;
+
+                    const friendsCount = fof.counters?.friends || 0;
+                    const existing = candidates.find(c => c.id === fof.id);
+
+                    if (existing) {
+                        if (friendsCount > existing.count) {
+                            existing.count = friendsCount;
+                            friendSources.set(fof.id, {
+                                throughFriend: friend,
+                                updatedAt: Date.now()
+                            });
+                        }
+                    } else {
+                        candidates.push({
+                            id: fof.id,
+                            count: friendsCount,
+                            firstName: fof.first_name,
+                            lastName: fof.last_name
+                        });
+                        friendSources.set(fof.id, {
+                            throughFriend: friend,
+                            updatedAt: Date.now()
+                        });
+                    }
+                });
+
+                // Обновление прогресса
+                resultBox.innerHTML = `
+                    <div class="text-muted">
+                        Обработано: ${index + 1}/${myFriends.items.length}<br>
+                        Найдено кандидатов: ${candidates.length}<br>
+                        Время: ${((Date.now() - startTime)/1000).toFixed(1)} сек
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error(`Ошибка у друга ${friend.id}:`, error);
+            }
+        }
+
+        // Проверка результатов
+        if (candidates.length === 0) {
+            resultBox.innerHTML = '<div class="text-warning">Не найдено подходящих кандидатов</div>';
+            return;
+        }
+
+        // Находим максимальное значение
+        const maxEntry = candidates.reduce((max, current) => 
+            current.count > max.count ? current : max, candidates[0]);
+
+        // Дополнительная проверка данных
+        const [userData] = await vkRequest('users.get', {
+            user_ids: maxEntry.id,
+            fields: 'counters,friend_status'
+        });
+
+        // Формирование результата
+        const totalTime = ((Date.now() - startTime)/1000).toFixed(2);
+        const source = friendSources.get(maxEntry.id)?.throughFriend || {};
+
+        resultBox.innerHTML = `
+            <div class="text-success">Результат поиска:</div>
+            <div class="user-item highlight">
+                <div class="id-badge bg-success">${maxEntry.id}</div>
+                <div>
+                    ${userData.first_name} ${userData.last_name}<br>
+                    <small class="text-muted">Друзей: ${userData.counters?.friends || maxEntry.count}</small>
+                </div>
+            </div>
+
+            <div class="mt-3">Найден через:</div>
+            <div class="user-item">
+                <div class="id-badge">${source.id}</div>
+                <div>
+                    ${source.first_name} ${source.last_name}<br>
+                    ${source.domain ? `
+                    <a href="https://vk.com/${source.domain}" 
+                       target="_blank" 
+                       class="link-success small">
+                       Профиль друга
+                    </a>` : ''}
+                </div>
+            </div>
+
+            <div class="mt-3 text-muted small">
+                Статистика поиска:<br>
+                • Анализировано друзей: ${limit}<br>
+                • Найдено кандидатов: ${candidates.length}<br>
+                • Время выполнения: ${totalTime} сек
+            </div>
+        `;
+
+    } catch (error) {
+        resultBox.innerHTML = `
+            <div class="text-danger">
+                Ошибка: ${error?.error_msg || 'Неизвестная ошибка'}
+            </div>
+        `;
+    }
+}
+
+        // Задание 5
+        async function task5() {
+            try {
+                const resultBox = document.getElementById('task5-result');
+                resultBox.style.display = 'block';
+                resultBox.innerHTML = '<div class="text-muted">Анализируем новостную ленту...</div>';
+                
+                // 1. Получаем последний пост
+                const newsfeed = await vkRequest('newsfeed.get', {
+                    count: 1,
+                    filters: 'post'
+                });
+
+                if (!newsfeed.items.length) {
+                    resultBox.innerHTML = '<div class="text-warning">Нет постов в ленте</div>';
+                    return;
+                }
+
+                const lastPost = newsfeed.items[0];
+                const authorId = lastPost.source_id;
+                const isGroup = authorId < 0;
+
+                // 2. Получаем информацию об авторе
+                let authorInfo = '';
+                try {
+                    if (isGroup) {
+                        const [group] = await vkRequest('groups.getById', {
+                            group_ids: Math.abs(authorId)
+                        });
+                        authorInfo = `Группа: ${group.name} (ID: ${authorId})`;
+                    } else {
+                        const [user] = await vkRequest('users.get', {
+                            user_ids: authorId,
+                            name_case: 'nom'
+                        });
+                        authorInfo = `Пользователь: ${user.first_name} ${user.last_name} (ID: ${authorId})`;
+                    }
+                } catch (e) {
+                    authorInfo = `Автор: ${isGroup ? 'Группа' : 'Пользователь'} (ID: ${authorId})`;
+                }
+
+                // 3. Форматируем дату поста
+                const postDate = new Date(lastPost.date * 1000).toLocaleString();
+
+                // 4. Получаем связанных людей
+                let people = [];
+                if (isGroup) {
+                    const members = await vkRequest('groups.getMembers', {
+                        group_id: Math.abs(authorId),
+                        count: 10,
+                        fields: 'name'
+                    });
+                    people = members.items;
+                } else {
+                    const friends = await vkRequest('friends.get', {
+                        user_id: authorId,
+                        count: 10,
+                        fields: 'name'
+                    });
+                    people = friends.items;
+                }
+
+                // 5. Формируем результат
+                const namesHTML = people.map(person => `
+                    <div class="user-item">
+                        <div class="id-badge small">${person.id}</div>
+                        ${person.first_name} ${person.last_name}
+                    </div>
+                `).join('');
+
+                resultBox.innerHTML = `
+                    <div class="text-success mb-2">
+                        ${authorInfo}<br>
+                        <small>Пост опубликован: ${postDate}</small>
+                    </div>
+                    <div class="mt-3">Связанные аккаунты:</div>
+                    ${namesHTML || '<div class="text-warning">Нет данных</div>'}
+                `;
+
+            } catch (error) {
+                const errorMsg = error.error_code === 15 ? "Профиль автора закрыт" : 
+                                error.error_msg || 'Неизвестная ошибка';
+                resultBox.innerHTML = `
+                    <div class="text-danger">
+                        Ошибка: ${errorMsg}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

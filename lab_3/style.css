@@ -1,0 +1,90 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f7fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  header {
+    background-color: #4c8bf5;
+    color: white;
+    padding: 30px 50px;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border-radius: 0 0 20px 20px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    letter-spacing: 1px;
+    text-transform: none;  /* Убрали преобразование в верхний регистр */
+    font-weight: bold;
+  }
+
+  #output {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  table, th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+    border-radius: 10px;
+  }
+
+  th {
+    background-color: #4c8bf5;
+    color: white;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+
+  td {
+    background-color: #fafafa;
+    font-size: 14px;
+    color: #333;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #f9f9f9;
+  }
+
+  tr:hover td {
+    background-color: #e1f0ff;
+    transition: background-color 0.3s;
+  }
+
+  .btn {
+    background-color: #4c8bf5;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+
+  .btn:hover {
+    background-color: #3b74c9;
+  }
