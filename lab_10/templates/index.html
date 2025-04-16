@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Telegram to VK Bridge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #e0e0e0;
+            --border-color: #404040;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .alert {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateX(100%);
+            animation: slideIn 0.3s forwards;
+        }
+
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .alert.fade-out {
+            animation: fadeOut 0.5s forwards;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+
+        .form-control {
+            background-color: var(--card-bg) !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .task-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .message-item {
+            background: #333;
+            padding: 0.8rem;
+            margin: 0.3rem 0;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            transition: all 0.3s;
+        }
+
+        .highlight {
+            border-left: 3px solid #2d7a4d;
+            background: rgba(45, 122, 77, 0.15);
+        }
+
+        .limit-width-btn {
+            max-width: 300px;
+            margin: 1rem 0 0;
+            padding: 0.75rem 2rem;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="notification" id="notificationContainer"></div>
+
+    <div class="container">
+        <h1 class="text-center mb-4">Мост Telegram → VK</h1>
+
+        <div class="task-card card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Настройки подключения</h5>
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="tgToken" placeholder="Токен Telegram бота">
+                </div>
+                <div class="mb-4">
+                    <input type="text" class="form-control" id="vkToken" placeholder="Токен VK">
+                </div>
+                <button class="btn btn-primary limit-width-btn" onclick="startBot()">Активировать бота</button>
+            </div>
+        </div>
+
+        <div class="task-card card mt-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3">История сообщений</h5>
+                <div id="messagesContainer">
+                    <!-- Сообщения будут загружаться здесь -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTgToken = localStorage.getItem('tgToken');
+            const savedVkToken = localStorage.getItem('vkToken');
+
+            if (savedTgToken) document.getElementById('tgToken').value = savedTgToken;
+            if (savedVkToken) document.getElementById('vkToken').value = savedVkToken;
+
+            updateMessages();
+        });
+
+        function showAlert(message, isSuccess = true) {
+            const container = document.getElementById('notificationContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${isSuccess ? 'success' : 'danger'}`;
+            alert.textContent = message;
+
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                alert.classList.add('fade-out');
+                setTimeout(() => alert.remove(), 500);
+            }, 3000);
+        }
+
+        function startBot() {
+            const tgToken = document.getElementById('tgToken').value.trim();
+            const vkToken = document.getElementById('vkToken').value.trim();
+
+            if(!tgToken || !vkToken) {
+                return showAlert('Заполните оба поля с токенами!', false);
+            }
+
+            localStorage.setItem('tgToken', tgToken);
+            localStorage.setItem('vkToken', vkToken);
+
+            fetch('/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    tg_token: tgToken,
+                    vk_token: vkToken
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    showAlert('Бот успешно активирован!');
+                    updateMessages();
+                } else {
+                    showAlert(data.message || 'Ошибка активации', false);
+                }
+            })
+            .catch(() => showAlert('Ошибка соединения', false));
+        }
+
+        function updateMessages() {
+            fetch('/messages')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('messagesContainer');
+                container.innerHTML = data.messages.map((msg, index) => `
+                    <div class="message-item ${index === 0 ? 'highlight' : ''}">
+                        <span>${msg.text}</span>
+                        <span>${msg.status}</span>
+                    </div>
+                `).join('');
+            });
+        }
+
+        setInterval(updateMessages, 2000);
+    </script>
+</body>
+</html>
